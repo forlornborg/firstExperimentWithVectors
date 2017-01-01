@@ -69,17 +69,25 @@ class Mover{
 }
 
 var ball;
-
+var ballArr;
 
 function setup(){
+
     createCanvas(innerWidth, innerHeight);
+    ballArr = [];
     ball = new Mover(1,1, 3, -4, 0.1, 0.001, 13);
     background(0);
 }
 
 function draw(){
-    ball.display();
-    ball.update();
-    ball.checkForWalls();
-    ball.limit();
+    if(mouseIsPressed){
+        console.log("pressed");
+        ballArr.push(new Mover(mouseX, mouseY, random(-2,2), random(-3,3), random(-0.1,0.1), random(-0.1,0.1), random(11)));
+    }
+    for(var i = 0; i < ballArr.length; i++){
+        ballArr[i].display();
+        ballArr[i].update();
+        ballArr[i].checkForWalls();
+        ballArr[i].limit();
+    }
 }
