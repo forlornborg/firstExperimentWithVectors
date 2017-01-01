@@ -32,7 +32,7 @@ class Pvector{
 }
 
 class Mover{
-    constructor(x_,y_, vx, vy, ax, ay, topSpeed){
+    constructor({x_,y_, vx, vy, ax, ay, topSpeed}){
         this.location = new Pvector(x_, y_);
         this.velocity = new Pvector(vx, vy);
         this.acceleration = new Pvector(ax, ay);
@@ -73,6 +73,15 @@ var ballArr;
 
 function setup(){
 
+    var config = {
+        apiKey: "AIzaSyAZodbztfznL2m-GychnIoUUM1eTtLfhgY",
+        authDomain: "testproject-46fa0.firebaseapp.com",
+        databaseURL: "https://testproject-46fa0.firebaseio.com",
+        storageBucket: "testproject-46fa0.appspot.com",
+        messagingSenderId: "895774418380"
+    };
+    firebase.initializeApp(config);
+
     createCanvas(innerWidth, innerHeight);
     ballArr = [];
     ball = new Mover(1,1, 3, -4, 0.1, 0.001, 13);
@@ -80,9 +89,19 @@ function setup(){
 }
 
 function draw(){
+    var ref = firebase.database().ref('ballArr');
     if(mouseIsPressed){
-        console.log("pressed");
-        ballArr.push(new Mover(mouseX, mouseY, random(-2,2), random(-3,3), random(-0.1,0.1), random(-0.1,0.1), random(11)));
+        var moveInfo = {
+            x_: mouseX,
+            y_: mouseY,
+            vx: random(-2,2),
+            vy: random(-3,3),
+            ax: random(-0.1,0.1),
+            ay: random(-0.1,0.1),
+            topSpeed: random(11)
+        }
+        ballArr.push(new Mover(moveInfo));
+        ref.push(moveInfo);
     }
     for(var i = 0; i < ballArr.length; i++){
         ballArr[i].display();
