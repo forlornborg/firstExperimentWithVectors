@@ -30,12 +30,20 @@ class Pvector{
     }
 
 }
+    function subVectors(PvectorM, PvectorN){
+        return new Pvector(PvectorM.x-PvectorN.x, PvectorM.y-PvectorN.y);
+    }
 
 class Mover{
     constructor({x_,y_, vx, vy, ax, ay, topSpeed}){
+        this.repelForce = -1
         this.location = new Pvector(x_, y_);
+        this.mouse = new Pvector(mouseX, mouseY);
+        this.dir = subVectors(this.mouse, this.location);
+        this.dir.normalize();
+        this.dir.multiply(this.repelForce)
         this.velocity = new Pvector(vx, vy);
-        this.acceleration = new Pvector(ax, ay);
+        this.acceleration = this.dir;
         this.topSpeed = topSpeed;
     }
     display(){
@@ -46,6 +54,14 @@ class Mover{
     update(){
         this.location.add(this.velocity);
         this.velocity.add(this.acceleration);
+
+        //pushing away from the mouse
+        this.mouse = new Pvector(mouseX, mouseY);
+        this.dir = subVectors(this.mouse, this.location);
+        this.dir.normalize();
+        this.dir.multiply(this.repelForce);
+        this.acceleration = this.dir;
+        console.log(this.dir);
     }
     checkForWalls(){
         if(this.location.x > width){
@@ -86,22 +102,25 @@ function setup(){
     ballArr = [];
     ball = new Mover(1,1, 3, -4, 0.1, 0.001, 13);
     background(0);
+
+    
+    
+   // var ref = firebase.database().ref('ballArr');
+    //ref.push(ballArr[0]);
 }
 
 function draw(){
-    var ref = firebase.database().ref('ballArr');
     if(mouseIsPressed){
         var moveInfo = {
-            x_: mouseX,
-            y_: mouseY,
-            vx: random(-2,2),
-            vy: random(-3,3),
-            ax: random(-0.1,0.1),
-            ay: random(-0.1,0.1),
-            topSpeed: random(11)
+        x_: 4,
+        y_: 4,
+        vx: 2,
+        vy: 3,
+        ax: 0.01,
+        ay: 0.04,
+        topSpeed: 11
         }
-        ballArr.push(new Mover(moveInfo));
-        ref.push(moveInfo);
+    ballArr.push(new Mover(moveInfo));
     }
     for(var i = 0; i < ballArr.length; i++){
         ballArr[i].display();
