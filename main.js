@@ -48,7 +48,7 @@ class Mover{
     display(){
         stroke(0);
         fill(175);
-        ellipse(this.location.x, this.location.y, 16, 16);
+        ellipse(this.location.x, this.location.y, this.mass*3, this.mass*3);
     }
     update(){
         this.velocity.add(this.acceleration);
