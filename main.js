@@ -124,9 +124,9 @@ function draw(){
     ref.push(moveInfo);
     ballArr.push(new Mover(moveInfo));
     }
-    var wind = new Pvector(random(-1,1),0);
-    var gravity = new Pvector(0,0.1);
     for(var i = 0; i < ballArr.length; i++){
+        var wind = new Pvector(random(-1,1),0);
+        var gravity = new Pvector(0,0.1*ballArr[i].mass);
         ballArr[i].applyForce(wind);
         ballArr[i].applyForce(gravity);
         ballArr[i].display();
