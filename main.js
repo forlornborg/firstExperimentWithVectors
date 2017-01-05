@@ -28,6 +28,9 @@ class Pvector{
         var mag = this.magnitude();
         this.divide(mag);
     }
+    get(){
+        return(new Pvector(this.x, this.y));
+    }
 
 }
     function subVectors(PvectorM, PvectorN){
@@ -35,15 +38,11 @@ class Pvector{
     }
 
 class Mover{
-    constructor({x_,y_, vx, vy, ax, ay, topSpeed}){
-        this.repelForce = -1
+    constructor({x_,y_, vx, vy, ax, ay, mass_, topSpeed}){
         this.location = new Pvector(x_, y_);
-        this.mouse = new Pvector(mouseX, mouseY);
-        this.dir = subVectors(this.mouse, this.location);
-        this.dir.normalize();
-        this.dir.multiply(this.repelForce)
         this.velocity = new Pvector(vx, vy);
-        this.acceleration = this.dir;
+        this.acceleration = new Pvector(0, 0);
+        this.mass = mass_;
         this.topSpeed = topSpeed;
     }
     display(){
@@ -52,16 +51,12 @@ class Mover{
         ellipse(this.location.x, this.location.y, 16, 16);
     }
     update(){
-        this.location.add(this.velocity);
         this.velocity.add(this.acceleration);
+        this.location.add(this.velocity);
+        this.acceleration.multiply(0);
+        
 
         //pushing away from the mouse
-        this.mouse = new Pvector(mouseX, mouseY);
-        this.dir = subVectors(this.mouse, this.location);
-        this.dir.normalize();
-        this.dir.multiply(this.repelForce);
-        this.acceleration = this.dir;
-        console.log(this.dir);
     }
     checkForWalls(){
         if(this.location.x > width){
@@ -82,13 +77,19 @@ class Mover{
             this.velocity.multiply(this.topSpeed);
         }
     }
+    applyForce(forceToAdd){
+        var force = forceToAdd.get();
+        force.divide(this.mass);
+        this.acceleration.add(force);
+
+    }
 }
 
 var ball;
 var ballArr;
 
 function setup(){
-
+    background(255);
     var config = {
         apiKey: "AIzaSyAZodbztfznL2m-GychnIoUUM1eTtLfhgY",
         authDomain: "testproject-46fa0.firebaseapp.com",
@@ -100,29 +101,34 @@ function setup(){
 
     createCanvas(innerWidth, innerHeight);
     ballArr = [];
-    ball = new Mover(1,1, 3, -4, 0.1, 0.001, 13);
-    background(0);
 
     
     
-   // var ref = firebase.database().ref('ballArr');
-    //ref.push(ballArr[0]);
+    
 }
-
+var t = 0;
 function draw(){
+    t++;
     if(mouseIsPressed){
         var moveInfo = {
-        x_: 4,
-        y_: 4,
-        vx: 2,
-        vy: 3,
-        ax: 0.01,
-        ay: 0.04,
-        topSpeed: 11
+        x_: mouseX,
+        y_: mouseY,
+        vx: 0,
+        vy: 0,
+        ax: random(-0.01,0.01),
+        ay: random(-0.01,0.01),
+        mass_: random(1,2),
+        topSpeed: random(11),
         }
+    var ref = firebase.database().ref('ballArr');
+    ref.push(moveInfo);
     ballArr.push(new Mover(moveInfo));
     }
+    var wind = new Pvector(random(-1,1),0);
+    var gravity = new Pvector(0,0.1);
     for(var i = 0; i < ballArr.length; i++){
+        ballArr[i].applyForce(wind);
+        ballArr[i].applyForce(gravity);
         ballArr[i].display();
         ballArr[i].update();
         ballArr[i].checkForWalls();
